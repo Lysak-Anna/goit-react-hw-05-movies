@@ -29,8 +29,13 @@ export const Text = styled.p`
   font-size: 20px;
 `;
 export const Info = styled.span`
+  font-size: 16px;
+  margin-right: 8px;
+`;
+export const Description = styled.span`
   display: block;
   font-size: 16px;
+  margin-top: 10px;
 `;
 export const AddInfo = styled.div`
   padding-left: 40px;

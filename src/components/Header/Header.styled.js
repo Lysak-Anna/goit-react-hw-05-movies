@@ -13,10 +13,10 @@ export const StyledLink = styled(NavLink)`
   }
 `;
 export const CommonHeader = styled.header`
-  width: 100%;
   height: 80px;
   box-shadow: -1px 6px 12px -5px rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   padding-left: 40px;
+  padding-right: 40px;
 `;

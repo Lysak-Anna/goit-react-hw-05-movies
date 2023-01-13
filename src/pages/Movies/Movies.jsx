@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import { getMoviesByQuery } from 'API_Services/moviesdbAPI';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from 'react-query';
+import useLanguageContext from 'hooks/useLanguageContext';
 import {
   Container,
   Input,
@@ -15,15 +18,17 @@ export default function Movies() {
   const [searchParams, setSearchParams] = useSearchParams();
   const keyWord = searchParams.get('keyWord');
   const [movies, setMovies] = useState([]);
-  const [error, setError] = useState(null);
-  useEffect(() => {
-    if (keyWord === null || keyWord === '') {
-      return;
+  const { language } = useLanguageContext();
+  const { isError } = useQuery(
+    ['searchMovie', keyWord, language],
+    async () => {
+      const { data } = await getMoviesByQuery(keyWord, language);
+      setMovies(data.results);
+    },
+    {
+      enabled: !!keyWord,
     }
-    getMoviesByQuery(keyWord)
-      .then(({ results }) => setMovies(results))
-      .catch(error => setError(error));
-  }, [keyWord]);
+  );
 
   function onSubmitHandler(event) {
     event.preventDefault();
@@ -43,7 +48,8 @@ export default function Movies() {
           <Icon />
         </Button>
       </form>
-      {error && <p>Something went wrong. Please, try again in few minutes</p>}
+      {isError &&
+        toast.error('Something went wrong. Please, try again in few minutes')}
       {movies.length > 0 && (
         <ul>
           {movies.map(({ title, id }) => (

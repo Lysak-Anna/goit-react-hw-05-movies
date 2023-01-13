@@ -1,20 +1,22 @@
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 import { Title, Container, StyledLink, Icon, Item } from './Home.styled';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getMovies } from 'API_Services/moviesdbAPI';
+import { useQuery } from 'react-query';
+import useLanguageContext from 'hooks/useLanguageContext';
 export default function Home() {
   const [movies, setMovies] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    getMovies()
-      .then(({ results }) => setMovies(results))
-      .catch(error => setError(error));
-  }, []);
+  const { language } = useLanguageContext();
+  const { isError } = useQuery(['movies', language], async () => {
+    const { results } = await getMovies(language);
+    setMovies(results);
+  });
   return (
     <Container>
-      <Title>Trending today</Title>
-      {error && <p>Something went wrong. Please, try again in few minutes</p>}
+      <Title>{language === 'uk' ? 'ТОП-20 сьогодні' : 'Trending today'}</Title>
+      {isError &&
+        toast.error('Something went wrong. Please, try again in few minutes')}
       {movies.length > 0 && (
         <ul>
           {movies.map(({ id, title }) => (

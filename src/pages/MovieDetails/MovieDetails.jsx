@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 import { useParams, Outlet, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getInfoById } from 'API_Services/moviesdbAPI';
+import { useQuery } from 'react-query';
+import useLanguageContext from 'hooks/useLanguageContext';
 import {
   BackLink,
   Container,
@@ -11,20 +14,20 @@ import {
   AddInfo,
   AddLink,
   Item,
+  Description,
 } from './MovieDetails.styled';
 export default function MovieDetails() {
   const location = useLocation();
   const { movieId } = useParams();
   const [movieInfo, setMovieInfo] = useState(null);
-  const [error, setError] = useState(null);
-
+  const { language } = useLanguageContext();
   const imageUrl = 'https://image.tmdb.org/t/p/w300/';
   const backLinkHref = location.state?.from ?? '/';
-  useEffect(() => {
-    getInfoById(movieId)
-      .then(info => setMovieInfo(info))
-      .catch(error => setError(error));
-  }, [movieId]);
+  const { isError } = useQuery(['movie', movieId, language], async () => {
+    const { data } = await getInfoById(movieId, language);
+    setMovieInfo(data);
+  });
+
   if (!movieInfo) {
     return null;
   }
@@ -39,8 +42,11 @@ export default function MovieDetails() {
   } = movieInfo;
   return (
     <div>
-      <BackLink to={backLinkHref}>Go back</BackLink>
-      {error && <p>Something went wrong. Please, try again in few minutes</p>}
+      <BackLink to={backLinkHref}>
+        {language === 'uk' ? 'Назад' : 'Go back'}
+      </BackLink>
+      {isError &&
+        toast.error('Something went wrong. Please, try again in few minutes')}
       {movieInfo && (
         <Container>
           <Image src={imageUrl + poster_path} alt={title}></Image>
@@ -48,35 +54,39 @@ export default function MovieDetails() {
             <h1>
               {original_title} ({release_date.slice(0, 4)})
             </h1>
+            {genres.map(({ name }, index) => (
+              <Info key={index}>{name}</Info>
+            ))}
             {vote_average > 0 && (
-              <Text>User score: {Math.round(vote_average * 10)}%</Text>
+              <Text>
+                {language === 'uk' ? 'Оцінка користувача' : 'User score'}:{' '}
+                {Math.round(vote_average * 10)}%
+              </Text>
             )}
-
-            <Text>
-              Overview: <Info>{overview}</Info>
-            </Text>
-            <Text>
-              Genres:{' '}
-              <Info>
-                {genres.map(({ name }, index) => (
-                  <Info key={index}>{name}</Info>
-                ))}
-              </Info>
-            </Text>
+            {overview !== '' && (
+              <Text>
+                {language === 'uk' ? 'Опис' : 'Overview'}{' '}
+                <Description>{overview}</Description>
+              </Text>
+            )}
           </div>
         </Container>
       )}
       <AddInfo>
-        <Info>Additional information</Info>
+        <Info>
+          {language === 'uk'
+            ? 'Додаткова інформація'
+            : 'Additional information'}
+        </Info>
         <ul>
           <Item>
             <AddLink to="cast" state={{ from: location.state?.from }}>
-              Cast
+              {language === 'uk' ? 'Акторський склад' : 'Cast'}
             </AddLink>
           </Item>
           <Item>
             <AddLink to="reviews" state={{ from: location.state?.from }}>
-              Reviews
+              {language === 'uk' ? 'Відгуки' : 'Reviews'}
             </AddLink>
           </Item>
         </ul>

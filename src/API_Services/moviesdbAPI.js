@@ -1,27 +1,35 @@
+import axios from 'axios';
+
+axios.defaults.baseURL = 'https://api.themoviedb.org/3/';
 const API_KEY = '531ec011205f6fc7b977a4223300a52e';
-const HTTPS = 'https://api.themoviedb.org/3/';
-export function getMovies() {
-  return fetch(`${HTTPS}trending/movie/day?api_key=${API_KEY}`).then(response =>
-    response.json()
+
+export async function getMovies(language) {
+  const { data } = await axios(
+    `trending/movie/day?api_key=${API_KEY}&language=${language}`
   );
+  return data;
 }
-export function getInfoById(id) {
-  return fetch(`${HTTPS}movie/${id}?api_key=${API_KEY}&language=en-US`).then(
-    response => response.json()
+export async function getInfoById(id, language) {
+  const data = await axios(
+    `movie/${id}?api_key=${API_KEY}&language=${language}`
   );
+  return data;
 }
-export function getActorsById(id) {
-  return fetch(
-    `${HTTPS}movie/${id}/credits?api_key=${API_KEY}&language=en-US`
-  ).then(response => response.json());
+export async function getActorsById(id, language) {
+  const data = await axios(
+    `movie/${id}/credits?api_key=${API_KEY}&language=${language}`
+  );
+  return data;
 }
-export function getReviewsById(id) {
-  return fetch(
-    `${HTTPS}movie/${id}/reviews?api_key=${API_KEY}&language=en-US&page=1`
-  ).then(response => response.json());
+export async function getReviewsById(id, language) {
+  const data = await axios(
+    `movie/${id}/reviews?api_key=${API_KEY}&language=${language}&page=1`
+  );
+  return data;
 }
-export function getMoviesByQuery(query) {
-  return fetch(
-    `${HTTPS}search/movie?api_key=${API_KEY}&language=en-US&page=1&include_adult=false&query=${query}`
-  ).then(response => response.json());
+export async function getMoviesByQuery(query, language) {
+  const data = await axios(
+    `search/movie?api_key=${API_KEY}&language=${language}&page=1&include_adult=false&query=${query}`
+  );
+  return data;
 }
